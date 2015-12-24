@@ -1,4 +1,6 @@
-module DocParser where 
+module DocParser (
+    parseDoc
+) where 
 
 import Text.Parsec
 import Text.Parsec.String
@@ -8,18 +10,16 @@ import Data.Char (isSpace)
 import Doc
 
 
-parseDocument :: String -> Either String Document
-parseDocument str = case parse document "" str of
+parseDoc :: String -> Either String Doc
+parseDoc str = case parse document "" str of
     Left err -> Left $ showErr err
     Right result -> Right result
+    where
+        showErr :: ParseError -> String
+        showErr err = showLastErr err
 
-
-showErr :: ParseError -> String
-showErr err = showLastErr err
-
-
-showLastErr :: ParseError -> String
-showLastErr err = messageString $ last $ errorMessages err
+        showLastErr :: ParseError -> String
+        showLastErr err = messageString $ last $ errorMessages err
 
 
 punctuationChars = "!?."  -- sentence termination characters
@@ -40,6 +40,15 @@ word = do
     return $ Word chars
 
 
+period = char '.' >> return Period
+
+exclamation = char '!' >> return Exclamation
+
+question = char '?' >> return Question
+
+punctuation :: Parser Punctuation
+punctuation = try period <|> try exclamation <|> question
+
 -- A sentence is one or more words followed by a period.  The period could
 -- be separated from the last word in the sentence by zero or more spaces.
 -- A sentence ends either with a sentence separator (which is consumed) or 
@@ -47,7 +56,7 @@ word = do
 sentence :: Parser Sentence
 sentence = do
     words <- many1 word
-    punc <- oneOf punctuationChars
+    punc <- punctuation
     sentenceEnd
     return $ Sentence words punc
 
@@ -68,11 +77,11 @@ paragraph = do
 paragraphEnd = try documentEnd <|> (spacesNoEndOfLine >> endOfLine >> spacesNoEndOfLine  >> endOfLine >> spaces)
 
 
-document :: Parser Document
+document :: Parser Doc
 document = do
     spaces
     paragraphs <- manyTill  paragraph documentEnd
-    return $ Document paragraphs
+    return $ Doc paragraphs
 
 
 documentEnd = spaces >> eof
