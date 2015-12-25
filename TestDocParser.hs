@@ -7,7 +7,11 @@ referenceDoc = "First sentence?\n\nSecond sentence.\n\nThird sentence!"
 
 
 tests :: [Bool]
-tests = [parseDoc testDoc == parseDoc referenceDoc]
+tests = [parseDoc testDoc == parseDoc referenceDoc,
+         parse word "" == parse word "",
+         parse word "abc " == parse word "abc",
+         parse word "abc \n " == parse word "abc",
+         parse word "abc . " == parse word "abc"]
 
 runTests :: [Bool] -> IO Int
 runTests tests = do
