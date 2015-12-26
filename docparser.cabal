@@ -26,6 +26,6 @@ library
 test-suite             test-docparser
     type:              exitcode-stdio-1.0
     main-is:           TestDocParser.hs
-    ghc-options:       -fhpc
+    -- ghc-options:       -fhpc
     build-depends:     base, docparser, parsec
     default-language:    Haskell2010
