@@ -6,7 +6,6 @@ import Text.Parsec
 import Text.Parsec.String
 import Text.Parsec.Error
 import Data.Char (isSpace)
-import Data.Either (isRight)
 
 import Doc
 
@@ -100,7 +99,11 @@ word = do
     wordEnd
     return $ Word chars
 
+
 wordChar = satisfy (\ch -> (not (isPunctuation ch)) && (not (isSpace ch)))
-    where isPunctuation ch = isRight $ (parse punctuation "" [ch])
+    where isPunctuation ch = case (parse punctuation "" [ch]) of
+        Right _ -> True
+        Left _ -> False
+
 
 wordEnd = try spacesOneEndOfLine <|> spacesNoEndOfLine
