@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/markrgrant/docparser.svg)](https://travis-ci.org/markrgrant/docparser)
+
 # README
 
 A simple text document parser library using parsec.
