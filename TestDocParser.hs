@@ -1,19 +1,20 @@
 import DocParser
+import Doc
 import System.Exit (exitSuccess, exitFailure)
 
 
-testDoc      = "\n \n  First   sentence?  \n \n Second    sentence. \n \n  Third   sentence !  \n  \n "
-referenceDoc = "First sentence?\n\nSecond sentence.\n\nThird sentence!"
+testDoc = "  first test.  \n   \n second \n test ? third test!\n\n \n"
+
+expectedDoc = Doc [
+    Par [Sen [Word "first", Word "test"] Period],
+    Par [Sen [Word "second", Word "test"] Question,
+         Sen [Word "third", Word "test"] Exclamation]]
+          
+
+tests = [parseDoc testDoc == Right expectedDoc,
+         parseDoc ""        == Right (Doc [])]
 
 
-tests :: [Bool]
-tests = [parseDoc testDoc == parseDoc referenceDoc,
-         parse word "" == parse word "",
-         parse word "abc " == parse word "abc",
-         parse word "abc \n " == parse word "abc",
-         parse word "abc . " == parse word "abc"]
-
-runTests :: [Bool] -> IO Int
 runTests tests = do
     if (and tests)
         then exitSuccess
@@ -21,8 +22,6 @@ runTests tests = do
             print tests
             exitFailure
 
-
-main :: IO ()
 main = do
     runTests tests
     return ()

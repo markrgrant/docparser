@@ -8,10 +8,19 @@ Set up a cabal sandbox
 
 ```
 cabal sandbox init
-cabal install
+cabal install --enable-tests
 ```
 
 
 ## Tests
 
 Run tests using ``cabal test``
+
+
+## Coverage
+
+View coverage using
+
+```
+hpt report test-docparser --exclude=Main --exclude=runTests
+```

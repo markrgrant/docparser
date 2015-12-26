@@ -10,18 +10,9 @@ import Data.Either (isRight)
 
 import Doc
 
--- notes:
--- manyTill p1 p2 first tests the terminating parser p2.  If p2
--- succeeds, the matching input is consumed and the list of matches 
--- of p1 is returned (if it fails, any partial match is still
--- consumed, so if partial matches are possible and consuming
--- could interfere with the parsing of p1, p2 should be surrounded
--- by try). Parser p1 is then applied.
-
-
 -- Parses a string containing the document of interest and
--- returns either a list of strings containing error message if the
--- document is not valid, or a Doc value.
+-- returns either a list of strings containing error message
+-- or a Doc value.
 parseDoc :: String -> Either [String] Doc
 parseDoc str = case parse document "" str of
     Left err -> Left $ showErr err
@@ -35,11 +26,11 @@ parseDoc str = case parse document "" str of
 document :: Parser Doc
 document = do
     spaces
-    paragraphs <- manyTill paragraph documentEnd
+    paragraphs <- many paragraph
     return $ Doc paragraphs
 
 
--- A document ends with optional whitespace.
+-- A document ends with zero or more whitespace and an end of file.
 documentEnd = spaces >> eof
 
 
@@ -48,10 +39,11 @@ documentEnd = spaces >> eof
 -- either the end of the document or the whitespace is a valid 
 -- paragraph separator (whitespace containing two or more carriage
 -- returns).
-paragraph :: Parser Paragraph
+paragraph :: Parser Par
 paragraph = do
-    sentences <- manyTill sentence (try paragraphSep)
-    return $ Paragraph sentences
+    sentences <- many1 sentence
+    paragraphSep
+    return $ Par sentences
 
 
 paragraphEnd =
@@ -70,27 +62,24 @@ paragraphSep = try documentEnd <|> paragraphEnd
 -- A sentence ends either with the end of the paragraph (which is
 -- not consumed), the start of a new sentence (whitespace containing at
 -- most one newline), or whitespace with no newlines.
-sentence :: Parser Sentence
+sentence :: Parser Sen
 sentence = do
     words <- many1 word
     punc <- punctuation
     sentenceEnd
-    return $ Sentence words punc
+    return $ Sen words punc
 
 
-punctuation :: Parser Punctuation
-punctuation = try period <|> try exclamation <|> question
+punctuation :: Parser Punc
+punctuation = try period <|> try exclamation <|> question <?> "missing an exclamation point (!, ., ?)"
     where period = char '.' >> return Period
           exclamation = char '!' >> return Exclamation
           question = char '?' >> return Question
 
 
-sentenceEnd = (lookAhead (try paragraphEnd)) <|>
-    try spacesNoEndOfLine <|>
+sentenceEnd = (lookAhead (try paragraphSep)) <|>
+    try spacesOneEndOfLine <|>
      spacesNoEndOfLine
-
-
-sentenceSep = spacesOneEndOfLine
 
 
 -- consumes all whitespace up to but not including a second newline
