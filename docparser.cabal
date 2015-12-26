@@ -28,3 +28,4 @@ test-suite             test-docparser
     main-is:           TestDocParser.hs
     ghc-options:       -fhpc
     build-depends:     base, docparser, parsec
+    default-language:    Haskell2010
