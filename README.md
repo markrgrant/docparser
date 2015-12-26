@@ -22,5 +22,5 @@ Run tests using ``cabal test``
 View coverage using
 
 ```
-hpt report test-docparser --exclude=Main --exclude=runTests
+hpc report test-docparser --exclude=Main --exclude=runTests
 ```
